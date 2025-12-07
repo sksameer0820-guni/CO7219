@@ -1,0 +1,57 @@
+version: "3.8"
+
+services:
+  wb-node1:
+    image: rofl256/whiteboard
+    container_name: wb-node1
+    ports:
+      - "8081:8080"
+    networks:
+      - wbnet
+
+  wb-node2:
+    image: rofl256/whiteboard
+    container_name: wb-node2
+    ports:
+      - "8082:8080"
+    networks:
+      - wbnet
+
+  wb-node3:
+    image: rofl256/whiteboard
+    container_name: wb-node3
+    ports:
+      - "8083:8080"
+    networks:
+      - wbnet
+
+  nginx:
+    image: nginx:alpine
+    container_name: wb-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - wb-node1
+      - wb-node2
+      - wb-node3
+    networks:
+      - wbnet
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor
+    container_name: wb-cadvisor
+    ports:
+      - "8084:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - wbnet
+
+networks:
+  wbnet:
+    driver: bridge
